@@ -6,6 +6,8 @@ import Login from "./components/login/login";
 import Register from "./components/register/register";
 import NavBar from "./components/navbar/navbar";
 import Dashboard from "./components/dashboard/dashboard";
+import Blog from "./components/blog/blog";
+import NewBlog from "./components/newBlog/newBlog";
 
 function App() {
   return (
@@ -14,9 +16,12 @@ function App() {
         <NavBar />
         <Container>
           <Switch>
+            <Route path="/" exact component={Login}></Route>
             <Route path="/login" exact component={Login}></Route>
             <Route path="/register" exact component={Register}></Route>
             <Route path="/dashboard" exact component={Dashboard}></Route>
+            <Route path="/blog" exact component={Blog}></Route>
+            <Route path="/blog/add" exact component={NewBlog}></Route>
           </Switch>
         </Container>
       </div>

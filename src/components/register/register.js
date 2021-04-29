@@ -1,38 +1,178 @@
 import React from "react";
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form } from "react-bootstrap";
 import regStyle from "./register.module.css";
-
+import { useHistory } from "react-router-dom";
 export default class Register extends React.Component {
-    render() {
-        return (
-            <div className={regStyle.loginForm}>
-                <Form className={regStyle.form}>
-                    <h5 className="text-muted py-3">Sign Up</h5>
-                    <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter email" />
-                    </Form.Group>
-                    
-                    <Form.Group controlId="formBasicUsrName">
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control type="text" placeholder="Enter Username" />
-                    </Form.Group>
+  constructor(props) {
+    console.log('props', props);
+    super(props);
+    this.state = {
+      email: "",
+      username: "",
+      mobile: "",
+      password: "",
+      errorMsgs: [],
+      error: false
+    };
+  }
 
-                    <Form.Group controlId="formBasicMob">
-                        <Form.Label>Mobile</Form.Label>
-                        <Form.Control type="number" placeholder="Enter Mobile" />
-                    </Form.Group>
+  handleUserInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value });
+  }
 
-                    <Form.Group controlId="formBasicPassword">
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control type="password" placeholder="Password" />
-                    </Form.Group>
-                    
-                    <Button variant="dark" type="submit">
-                        Sign Up
-                    </Button>
-                </Form>
-            </div>
-        )
+  checkEmailExists = () => {
+    console.log('email', this.state.email);
+    console.log('email.length', this.state.email.length);
+    if (this.state.email.length > 0) {
+      const requestOptions = {
+        method: 'GET'
+      };
+      fetch(`http://localhost:4000/api/checkEmail/${this.state.email}`, requestOptions).then(data => data.json()).then(res => {
+        console.log('email check response', res);
+        const errorMsgs = this.state.errorMsgs;
+        console.log('errorMsgs', errorMsgs)
+        errorMsgs.push(res.message);
+        console.log('errorMsgs 2', errorMsgs)
+        res.success === true ? this.setState({ error: false }) : this.setState({ error: true, errorMsgs });
+      }, (error) => {
+        console.log('email check error', error);
+        // this.showToast('error', error.message);
+        const errorMsgs = this.state.errorMsgs;
+        errorMsgs.push(error.message);
+        this.setState({
+          error: true,
+          errorMsgs
+        })
+      })
     }
+  }
+
+  checkUsernameExists = () => {
+    if (this.state.username.length > 0) {
+      console.log('username', this.state.username);
+      const requestOptions = {
+        method: 'GET'
+      };
+      fetch(`http://localhost:4000/api/checkUsername/${this.state.username}`, requestOptions).then(data => data.json()).then(res => {
+        console.log('username check response', res);
+        const errorMsgs = this.state.errorMsgs;
+        console.log('errorMsgs', errorMsgs)
+        errorMsgs.push(res.message);
+        console.log('errorMsgs 2', errorMsgs)
+        res.success === true ? this.setState({ error: false }) : this.setState({ error: true, errorMsgs });
+      }, error => {
+        console.log('username check error', error.json);
+        // this.showToast('error', error.message);
+        this.setState({
+          error: true,
+          errorMsgs: this.state.errorMsgs.push(error.message)
+        })
+      })
+    }
+  }
+
+  registerUser = (event) => {
+    event.preventDefault();
+    console.log(this.state);
+    console.log('this.state.error', this.state.error);
+    console.log(this.state.errorMsgs.join());
+    if (this.state.error && this.state.errorMsgs.length > 0) {
+      alert(this.state.errorMsgs.join());
+      return;
+    }
+    const body = {
+      email: this.state.email,
+      username: this.state.username,
+      mobile: this.state.mobile,
+      password: this.state.password
+    };
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    };
+    fetch(`http://localhost:4000/api/register`, requestOptions).then(res => res.json()).then(data => {
+      console.log('reg response', data);
+      if (data.success === true) {
+        alert('Registration Successful!!!');
+        this.props.history.push('/login');
+      } else {
+        alert('Registration Failed -', data.message);
+      }
+    },
+      error => {
+        console.log('reg error', error);
+        alert('Registration Failed -', error.message);
+      })
+  }
+
+
+  render() {
+    return (
+      <div className={regStyle.loginForm}>
+        <Form className={regStyle.form} onSubmit={this.registerUser}>
+          <h5 className="text-muted py-3">Sign Up</h5>
+          <Form.Group
+            controlId="formBasicEmail"
+          >
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              name="email"
+              placeholder="Enter email"
+              required
+              onChange={this.handleUserInput}
+              onBlur={this.checkEmailExists}
+            />
+          </Form.Group>
+
+          <Form.Group
+            controlId="formBasicUsrName"
+          >
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter Username"
+              name="username"
+              required
+              onChange={this.handleUserInput}
+              onBlur={this.checkUsernameExists}
+            />
+          </Form.Group>
+
+          <Form.Group
+            controlId="formBasicMob"
+          >
+            <Form.Label>Mobile</Form.Label>
+            <Form.Control
+              type="number"
+              placeholder="Enter Mobile"
+              name="mobile"
+              pattern="/^(\+\d{1,3}[- ]?)?\d{10}$/"
+              required
+              onChange={this.handleUserInput}
+            />
+          </Form.Group>
+
+          <Form.Group controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              name="password"
+              min="6"
+              required
+              onChange={this.handleUserInput}
+            />
+          </Form.Group>
+
+          <Button variant="dark" type="submit">
+            Sign Up
+          </Button>
+        </Form>
+      </div>
+    );
+  }
 }

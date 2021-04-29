@@ -14,7 +14,10 @@ export default class NavBar extends React.Component {
             </Link>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          <Navbar.Collapse
+            id="basic-navbar-nav"
+            className="justify-content-end"
+          >
             <Nav className="mx-5">
               <Nav className="mr-3">
                 <Link to="/login" className={NavStyle.fontColor}>
