@@ -8,6 +8,8 @@ import NavBar from "./components/navbar/navbar";
 import Dashboard from "./components/dashboard/dashboard";
 import Blog from "./components/blog/blog";
 import NewBlog from "./components/newBlog/newBlog";
+import ProtectedRoute from './routeGuards/protectedRoute/protected.route';
+import NotProtected from './routeGuards/protectedRoute/notprotected.route';
 
 function App() {
   return (
@@ -16,12 +18,12 @@ function App() {
         <NavBar />
         <Container>
           <Switch>
-            <Route path="/" exact component={Login}></Route>
-            <Route path="/login" exact component={Login}></Route>
-            <Route path="/register" exact component={Register}></Route>
-            <Route path="/dashboard" exact component={Dashboard}></Route>
-            <Route path="/blog" exact component={Blog}></Route>
-            <Route path="/blog/add" exact component={NewBlog}></Route>
+            <NotProtected path="/" exact component={Login}></NotProtected>
+            <NotProtected path="/login" exact component={Login}></NotProtected>
+            <NotProtected path="/register" exact component={Register}></NotProtected>
+            <ProtectedRoute path="/dashboard" exact component={Dashboard}></ProtectedRoute>
+            <ProtectedRoute path="/blog" exact component={Blog}></ProtectedRoute>
+            <ProtectedRoute path="/blog/add" exact component={NewBlog}></ProtectedRoute>
           </Switch>
         </Container>
       </div>

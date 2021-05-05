@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import regStyle from "./register.module.css";
-import { useHistory } from "react-router-dom";
 export default class Register extends React.Component {
   constructor(props) {
     console.log('props', props);
@@ -29,7 +28,7 @@ export default class Register extends React.Component {
       const requestOptions = {
         method: 'GET'
       };
-      fetch(`http://localhost:4000/api/checkEmail/${this.state.email}`, requestOptions).then(data => data.json()).then(res => {
+      fetch(`http://localhost:1000/api/checkEmail/${this.state.email}`, requestOptions).then(data => data.json()).then(res => {
         console.log('email check response', res);
         const errorMsgs = this.state.errorMsgs;
         console.log('errorMsgs', errorMsgs)
@@ -55,7 +54,7 @@ export default class Register extends React.Component {
       const requestOptions = {
         method: 'GET'
       };
-      fetch(`http://localhost:4000/api/checkUsername/${this.state.username}`, requestOptions).then(data => data.json()).then(res => {
+      fetch(`http://localhost:1000/api/checkUsername/${this.state.username}`, requestOptions).then(data => data.json()).then(res => {
         console.log('username check response', res);
         const errorMsgs = this.state.errorMsgs;
         console.log('errorMsgs', errorMsgs)
@@ -75,9 +74,6 @@ export default class Register extends React.Component {
 
   registerUser = (event) => {
     event.preventDefault();
-    console.log(this.state);
-    console.log('this.state.error', this.state.error);
-    console.log(this.state.errorMsgs.join());
     if (this.state.error && this.state.errorMsgs.length > 0) {
       alert(this.state.errorMsgs.join());
       return;
@@ -93,7 +89,7 @@ export default class Register extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     };
-    fetch(`http://localhost:4000/api/register`, requestOptions).then(res => res.json()).then(data => {
+    fetch(`http://localhost:1000/api/register`, requestOptions).then(res => res.json()).then(data => {
       console.log('reg response', data);
       if (data.success === true) {
         alert('Registration Successful!!!');
