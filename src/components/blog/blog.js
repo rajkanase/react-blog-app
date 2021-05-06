@@ -42,7 +42,7 @@ export default class Blog extends React.Component {
   render() {
     console.log('this.state.blogs', this.state.blogs)
     const blogsTemp = this.state.blogs.map(blog => {
-      return <Panel blog={blog} key={blog._id} />
+      return <Panel blog={blog} key={blog._id} refreshBlogs={this.getBlogs} />
     });
     return (
       <div>
@@ -57,7 +57,7 @@ export default class Blog extends React.Component {
               New Post
             </Button>
           </Link>
-          <Button variant="secondary" type="button">
+          <Button onClick={this.getBlogs} variant="secondary" type="button">
             Reload
           </Button>
         </div>

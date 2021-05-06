@@ -2,7 +2,8 @@ import React from "react";
 import panelStyle from "./panel.module.css";
 import { Button, Dropdown } from "react-bootstrap";
 import Auth from './../../classes/auth';
-export default class Panel extends React.Component {
+import { withRouter } from "react-router-dom";
+class Panel extends React.Component {
 
   constructor(props) {
     super(props);
@@ -39,12 +40,13 @@ export default class Panel extends React.Component {
 
   cancelCmnt = () => {
     this.setState({
+      commentBody: '',
       showCmntInp: false
     });
   }
 
   likeBlog = (id) => {
-    const body = { _id: id };
+    const body = { id: id };
     const requestOptions = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': Auth.getToken() },
@@ -53,7 +55,7 @@ export default class Panel extends React.Component {
     fetch(`${Auth.getBaseURL()}/likeBlog`, requestOptions).then(data => data.json()).then(res => {
       console.log('Like response', res);
       if (res.success) {
-
+        this.props.refreshBlogs();
       } else {
         alert('Blog Like Error', res.message);
       }
@@ -64,7 +66,7 @@ export default class Panel extends React.Component {
   }
 
   dislikeBlog = (id) => {
-    const body = { _id: id };
+    const body = { id: id };
     const requestOptions = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': Auth.getToken() },
@@ -73,7 +75,7 @@ export default class Panel extends React.Component {
     fetch(`${Auth.getBaseURL()}/dislikeBlog`, requestOptions).then(data => data.json()).then(res => {
       console.log('Dislike response', res);
       if (res.success) {
-
+        this.props.refreshBlogs();
       } else {
         alert('Blog Dislike Error', res.message);
       }
@@ -83,10 +85,10 @@ export default class Panel extends React.Component {
     });
   }
 
-  commentBlog = (id, comment) => {
+  commentBlog = (id) => {
     const body = {
-      _id: id,
-      comment: comment
+      id: id,
+      comment: this.state.commentBody
     };
     const requestOptions = {
       method: 'POST',
@@ -96,7 +98,8 @@ export default class Panel extends React.Component {
     fetch(`${Auth.getBaseURL()}/comment`, requestOptions).then(data => data.json()).then(res => {
       console.log('Comment response', res);
       if (res.success) {
-
+        this.cancelCmnt();
+        this.props.refreshBlogs();
       } else {
         alert('Comment Error', res.message);
       }
@@ -106,19 +109,23 @@ export default class Panel extends React.Component {
     });
   }
 
+  onEdit = (id) => {
+    this.props.history.push(`/blog/add/${id}`);
+  }
+
   render() {
-    const { title, body, createdBy, createdAt, comments, likes, dislikes, likedBy, dislikedBy } = this.props.blog;
+    const { _id, title, body, createdBy, createdAt, comments, likes, dislikes, likedBy, dislikedBy } = this.props.blog;
     const cmntTemp = comments.map(cmnt => {
       return <div key={cmnt._id}><strong>{cmnt.commentator} : </strong>{cmnt.comment}</div>
     });
     const likesTemp = likedBy.map(lk => {
-      return <Dropdown.Item>{lk}</Dropdown.Item>
+      return <Dropdown.Item key={lk}>{lk}</Dropdown.Item>
     });
     const disLikesTemp = dislikedBy.map(dslk => {
-      return <Dropdown.Item>{dslk}</Dropdown.Item>
+      return <Dropdown.Item key={dslk}>{dslk}</Dropdown.Item>
     });
     return (
-      <div className={`${panelStyle.panel}`}>
+      <div className={`${panelStyle.panel} mb-3`}>
         <div
           className={`${panelStyle.panelHeader} ${panelStyle.textLight} p-1`}
         >
@@ -133,7 +140,7 @@ export default class Panel extends React.Component {
             <div>Date - {createdAt}</div>
             {!this.isMyBlog(createdBy) && <div className="d-flex">
               <Dropdown className="mr-2">
-                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                <Dropdown.Toggle onClick={() => { this.likeBlog(_id) }} variant="success" id="dropdown-basic">
                   Likes ({likes})
                 </Dropdown.Toggle>
                 {
@@ -143,7 +150,7 @@ export default class Panel extends React.Component {
                 }
               </Dropdown>
               <Dropdown>
-                <Dropdown.Toggle className={panelStyle.textLight} variant="warning" id="dropdown-basic">
+                <Dropdown.Toggle onClick={() => { this.dislikeBlog(_id) }} className={panelStyle.textLight} variant="warning" id="dropdown-basic">
                   Dislikes ({dislikes})
                 </Dropdown.Toggle>
                 {
@@ -158,7 +165,7 @@ export default class Panel extends React.Component {
                 <Button className="mr-2" variant="danger" type="button">
                   Delete
                 </Button>
-                <Button variant="warning" type="button">
+                <Button variant="warning" type="button" onClick={() => { this.onEdit(_id) }}>
                   Edit
                 </Button>
               </div>
@@ -171,7 +178,7 @@ export default class Panel extends React.Component {
             {
               this.state?.showCmntInp && <div>
                 <textarea name="commentBody" className="form-control my-2" rows="6" onChange={this.inputChangeHandler}></textarea>
-                <Button className="mr-2" variant="primary" type="button" disabled={!this.state?.commentBody} onClick={this.commentBlog}>
+                <Button className="mr-2" variant="primary" type="button" disabled={!this.state?.commentBody} onClick={() => { this.commentBlog(_id,) }}>
                   Submit Post
                 </Button>
                 <Button variant="danger" type="button" onClick={this.cancelCmnt}>
@@ -182,10 +189,16 @@ export default class Panel extends React.Component {
           </div>
         </div>
         <div className={`${panelStyle.panelFooter} p-2`}>
-          <div onClick={this.showCmnts}>{this.state.cmntText}</div>
-          {this.state.showComments && <div>{cmntTemp}</div>}
+          <div onClick={this.showCmnts} className="pointer">
+            {this.state.cmntText} ({comments.length})
+          </div>
+          {this.state.showComments &&
+            <div>{cmntTemp}</div>
+          }
         </div>
       </div>
     );
   }
 }
+
+export default withRouter(Panel);

@@ -24,22 +24,54 @@ export default class NewBlog extends React.Component {
     return user.username;
   }
 
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    if (id) {
+      this.setState({ id: id })
+      this.getBlogDetails(id);
+    }
+  }
+
+  getBlogDetails = (id) => {
+    const requestOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', 'Authorization': Auth.getToken() }
+    };
+    fetch(`${Auth.getBaseURL()}/singleBlog/${id}`, requestOptions).then(data => data.json()).then(res => {
+      console.log('res', res);
+      if (res.success) {
+        this.setState({
+          title: res.blog.title,
+          body: res.blog.body
+        });
+        console.log(this.state);
+      } else {
+        alert('Get Blogs Failed', res.message);
+      }
+    }, error => {
+      console.log('error', error);
+      alert('Error', error.message);
+    });
+  }
+
   onBlogSubmit = (event) => {
     event.preventDefault();
     const body = {
       title: this.state.title,
       body: this.state.body,
-      username: this.getUsername()
+      createdBy: this.getUsername()
     };
+    if (this.state.id) { body['_id'] = this.state.id; delete body['createdBy'] }
+
     const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: this.state.id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': Auth.getToken() },
       body: JSON.stringify(body)
     };
-    fetch(`${Auth.getBaseURL}/newBlog`, requestOptions).then(data => data.json()).then(res => {
+    fetch(this.state.id ? `${Auth.getBaseURL()}/updateBlog` : `${Auth.getBaseURL()}/newBlog`, requestOptions).then(data => data.json()).then(res => {
       console.log('create blog res', res);
       if (res.success) {
-        this.props.history('/blog');
+        this.props.history.push('/blog');
       } else {
         alert('Blog Create Failed', res.message);
       }
@@ -50,6 +82,7 @@ export default class NewBlog extends React.Component {
   }
 
   render() {
+
     return (
       <div>
         <Form onSubmit={this.onBlogSubmit}>
@@ -60,6 +93,7 @@ export default class NewBlog extends React.Component {
               type="text"
               placeholder="Title"
               name="title"
+              value={this.state.title}
               onChange={this.inputHandler}
             />
           </Form.Group>
@@ -71,6 +105,7 @@ export default class NewBlog extends React.Component {
               placeholder="Body"
               rows={5}
               name="body"
+              value={this.state.body}
               onChange={this.inputHandler}
             />
           </Form.Group>

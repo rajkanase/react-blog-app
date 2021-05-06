@@ -10,6 +10,7 @@ import Blog from "./components/blog/blog";
 import NewBlog from "./components/newBlog/newBlog";
 import ProtectedRoute from './routeGuards/protectedRoute/protected.route';
 import NotProtected from './routeGuards/protectedRoute/notprotected.route';
+import Profile from "./components/profile/profile";
 
 function App() {
   return (
@@ -22,8 +23,10 @@ function App() {
             <NotProtected path="/login" exact component={Login}></NotProtected>
             <NotProtected path="/register" exact component={Register}></NotProtected>
             <ProtectedRoute path="/dashboard" exact component={Dashboard}></ProtectedRoute>
+            <ProtectedRoute path="/profile" exact component={Profile}></ProtectedRoute>
             <ProtectedRoute path="/blog" exact component={Blog}></ProtectedRoute>
             <ProtectedRoute path="/blog/add" exact component={NewBlog}></ProtectedRoute>
+            <ProtectedRoute path="/blog/add/:id" exact component={NewBlog}></ProtectedRoute>
           </Switch>
         </Container>
       </div>

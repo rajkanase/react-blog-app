@@ -28,7 +28,7 @@ export default class Login extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     };
-    fetch('http://localhost:1000/api/login', requestOptions).then(res => res.json()).then(data => {
+    fetch(`${Auth.getBaseURL()}/login`, requestOptions).then(res => res.json()).then(data => {
       console.log(data);
       if (data.success === true) {
         Auth.setStorage('token', data.token);

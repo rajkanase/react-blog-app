@@ -19,3 +19,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.pointer{
+  cursor: pointer;
+}
+
+a:hover{
+  color: #fff;
+  text-decoration: none;
+}

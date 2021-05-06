@@ -60,7 +60,7 @@ class NavBar extends React.Component {
                 </Link>
                 </Nav>
                 <Nav className="mr-3">
-                  <Nav className={NavStyle.fontColor} onClick={this.onLogout}>
+                  <Nav className={`${NavStyle.fontColor} pointer`} onClick={this.onLogout}>
                     Logout
                   </Nav>
                 </Nav>
